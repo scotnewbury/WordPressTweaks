@@ -32,6 +32,12 @@ function remove_howdy_admin_bar($wp_admin_bar)
 add_filter('admin_bar_menu', 'ScotNewbury\WordPressTweaks\remove_howdy_admin_bar', 25);
 
 
+/**
+ * This funciton add the 'Post ID' column to the front of the post table in the Admin section of WordPress
+ *
+ * @param Array $columns
+ * @return void
+ */
 function add_post_id_column($columns)
 {
 
@@ -48,6 +54,13 @@ function add_post_id_column($columns)
 }
 add_filter('manage_post_posts_columns', 'ScotNewbury\WordPressTweaks\add_post_id_column');
 
+/**
+ * This funciton places the post id number in the proper column
+ *
+ * @param String $column
+ * @param String $post_id
+ * @return void
+ */
 function add_post_ids($column, $post_id)
 {
   if ('post_id' == $column) {
