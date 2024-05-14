@@ -47,3 +47,11 @@ function add_post_id_column($columns)
   return $columns;
 }
 add_filter('manage_post_posts_columns', 'ScotNewbury\WordPressTweaks\add_post_id_column');
+
+function add_post_ids($column, $post_id)
+{
+  if ('post_id' == $column) {
+    echo $post_id;
+  }
+}
+add_action('manage_posts_custom_column', 'ScotNewbury\WordPressTweaks\add_post_ids', 10, 2);
