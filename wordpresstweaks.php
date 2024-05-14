@@ -30,3 +30,20 @@ function remove_howdy_admin_bar($wp_admin_bar)
   $wp_admin_bar->add_node(array('id' => 'my-account', 'title' => $remove_title));
 }
 add_filter('admin_bar_menu', 'ScotNewbury\WordPressTweaks\remove_howdy_admin_bar', 25);
+
+
+function add_post_id_column($columns)
+{
+
+  $columns_before = array_slice($columns, 0, 1);
+  $columns_after = array_slice($columns, 1);
+
+  $columns = $columns_before +
+    array(
+      'post_id' => __('Post ID'),
+    ) +
+    $columns_after;
+
+  return $columns;
+}
+add_filter('manage_post_posts_columns', 'ScotNewbury\WordPressTweaks\add_post_id_column');
