@@ -29,7 +29,7 @@ function remove_howdy_admin_bar($wp_admin_bar)
   $remove_title = str_replace('Howdy,', '', $user_account->title);
   $wp_admin_bar->add_node(array('id' => 'my-account', 'title' => $remove_title));
 }
-add_filter('admin_bar_menu', 'ScotNewbury\WordPressTweaks\remove_howdy_admin_bar', 25);
+add_filter('admin_bar_menu', __NAMESPACE__ . '\remove_howdy_admin_bar', 25);
 
 
 /**
