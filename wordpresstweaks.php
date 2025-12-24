@@ -95,3 +95,17 @@ function add_post_ids($column, $post_id)
   }
 }
 add_action('manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
+
+/**
+ * Removes the 'Background updates are not working as expected' check from Site Health.
+ * Since WP_AUTO_UPDATE_CORE is intentionally false, hide the warning to keep the dashboard clean.
+ */
+function remove_background_update_check( $tests ) {
+    // Background updates are part of the asynchronous tests in the Site Health suite.
+    if ( isset( $tests['async']['background_updates'] ) ) {
+        unset( $tests['async']['background_updates'] );
+    }
+    return $tests;
+}
+add_filter( 'site_status_tests', __NAMESPACE__ . '\\remove_background_update_check' );
+
