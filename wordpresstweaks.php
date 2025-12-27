@@ -21,18 +21,7 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
-/**
-* Injecting a bit of CSS code to shrink the ID column width
-*/
-function style_post_id_column() {
-    echo '<style>
-        .fixed .column-' . POST_ID_KEY . ' { 
-            width: 60px; 
-            text-align: center;
-        }
-    </style>';
-}
-add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
+
 
 /**
  * Overwrites the 'Howdy' greeting by setting the account title 
@@ -83,7 +72,7 @@ add_action('admin_bar_menu', __NAMESPACE__ . '\\remove_howdy_admin_bar', 9999);
 
 
 /**
- * This funciton add the 'Post ID' column to the front of the post table in the Admin section of WordPress
+ * This funciton add the 'Post ID' column to the front of the post and page tables in the Admin section of WordPress
  *
  * @param Array $columns
  */
@@ -118,6 +107,25 @@ function add_post_ids($column, $post_id)
 }
 add_action('manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
 add_action('manage_pages_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
+
+/**
+* Injecting a bit of CSS code to shrink the ID column width
+*/
+function style_post_id_column() {
+  $screen = get_current_screen();
+
+  // Only load if we are on a list table (e.g., edit-post or edit-page)
+  if ( ! $screen || 'edit' !== $screen->base ) {
+      return;
+  }  
+  echo '<style>
+      .fixed .column-' . POST_ID_KEY . ' { 
+          width: 60px; 
+          text-align: center;
+      }
+  </style>';
+}
+add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
 
 /**
  * Removes the 'Background updates are not working as expected' check from Site Health.
