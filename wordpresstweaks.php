@@ -5,10 +5,14 @@
  * Description: A group of tweaks for the WordPress admin sections
  * Author:      Scot Newbury
  * Requires     PHP: 7.4
- * Version:     0.2
+ * Version:     0.3
  */
 
+/**
+ * Scope the namespance and set up some variables to prevent clashes
+ */
 namespace ScotNewbury\WordPressTweaks;
+const POST_ID_KEY = 'sn_wp_tweaks_post_id';
 
 /**
  *  Stop execution of the plugin if it's call directly.
@@ -16,6 +20,19 @@ namespace ScotNewbury\WordPressTweaks;
 if (!defined('ABSPATH')) {
   exit;
 }
+
+/**
+* Injecting a bit of CSS code to shrink the ID column width
+*/
+function style_post_id_column() {
+    echo '<style>
+        .fixed .column-' . POST_ID_KEY . ' { 
+            width: 60px; 
+            text-align: center;
+        }
+    </style>';
+}
+add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
 
 /**
  * Overwrites the 'Howdy' greeting by setting the account title 
@@ -73,7 +90,7 @@ function add_post_id_column($columns)
 
   $columns = $columns_before +
     array(
-      'post_id' => __('Post ID'),
+      POST_ID_KEY => __('Post ID'),
     ) +
     $columns_after;
 
@@ -90,7 +107,7 @@ add_filter('manage_post_posts_columns', __NAMESPACE__ . '\\add_post_id_column');
  */
 function add_post_ids($column, $post_id)
 {
-  if ('post_id' == $column) {
+  if (POST_ID_KEY == $column) {
     echo $post_id;
   }
 }
