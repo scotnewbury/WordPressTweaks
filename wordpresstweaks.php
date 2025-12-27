@@ -42,6 +42,12 @@ add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
  */
 function remove_howdy_admin_bar($wp_admin_bar)
 {
+  $options = get_option( 'sn_tweaks_options' );
+
+  // If the checkbox isn't checked, exit
+  if ( empty( $options['remove_howdy'])) {
+    return;
+  }
 
   // Grab the actual user data for the display name
   $current_user = wp_get_current_user();
@@ -126,3 +132,55 @@ function remove_background_update_check( $tests ) {
 }
 add_filter( 'site_status_tests', __NAMESPACE__ . '\\remove_background_update_check' );
 
+/**
+ * Create Settings Page and its Fields - register it
+ */
+function register_tweaks_settings() {
+    // Create the setting entry in the wp_options table
+    register_setting( 'sn_tweaks_group', 'sn_tweaks_options' );
+
+    // Add a section for "General Tweaks"
+    add_settings_section( 'sn_tweaks_section_admin', 'Admin Dashboard Tweaks', null, 'sn-tweaks-admin' );
+
+    // Add the individual checkbox fields
+    add_settings_field( 'remove_howdy', 'Remove "Howdy"', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'remove_howdy' ] );
+    add_settings_field( 'show_post_ids', 'Show Post IDs', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'show_post_ids' ] );
+    add_settings_field( 'silence_health', 'Silence Health Warnings', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'silence_health' ] );
+}
+add_action( 'admin_init', __NAMESPACE__ . '\\register_tweaks_settings' );
+
+/**
+ * Render the Checkbox HTML
+ */
+function render_checkbox( $args ) {
+    $options = get_option( 'sn_tweaks_options' );
+    $id = $args['label_for'];
+    $checked = isset( $options[$id] ) ? checked( 1, $options[$id], false ) : '';
+    echo "<input type='checkbox' id='$id' name='sn_tweaks_options[$id]' value='1' $checked />";
+}
+
+/**
+ * Add the Menu Item to Settings
+ */
+function add_tweaks_menu() {
+    add_options_page( 'WP Tweaks Settings', 'WP Tweaks', 'manage_options', 'sn-tweaks-admin', __NAMESPACE__ . '\\render_settings_page' );
+}
+add_action( 'admin_menu', __NAMESPACE__ . '\\add_tweaks_menu' );
+
+/**
+ * Render the Settings Page HTML
+ */
+function render_settings_page() {
+    ?>
+    <div class="wrap">
+        <h1>WordPress Tweaks Settings</h1>
+        <form action="options.php" method="post">
+            <?php
+            settings_fields( 'sn_tweaks_group' );
+            do_settings_sections( 'sn-tweaks-admin' );
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
