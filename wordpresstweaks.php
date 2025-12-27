@@ -21,7 +21,24 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
+  $options = get_option( 'sn_tweaks_options' );
 
+// Toggle for removing 'Howdy'
+if ( ! empty( $options['remove_howdy']) ) {
+  add_action('admin_bar_menu', __NAMESPACE__ . '\\remove_howdy_admin_bar', 9999);
+}
+
+// Toggle IDs on post table
+if ( ! empty( $options['show_post_ids_posts'] ) ) {
+    add_filter( 'manage_post_posts_columns', __NAMESPACE__ . '\\add_post_id_column' );
+    add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2 );
+}
+
+// Toggle IDs for pages table
+if ( ! empty( $options['show_post_ids_pages'] ) ) {
+    add_filter( 'manage_pages_columns', __NAMESPACE__ . '\\add_post_id_column' );
+    add_action( 'manage_pages_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2 );
+}
 
 /**
  * Overwrites the 'Howdy' greeting by setting the account title 
@@ -31,12 +48,6 @@ if (!defined('ABSPATH')) {
  */
 function remove_howdy_admin_bar($wp_admin_bar)
 {
-  $options = get_option( 'sn_tweaks_options' );
-
-  // If the checkbox isn't checked, exit
-  if ( empty( $options['remove_howdy'])) {
-    return;
-  }
 
   // Grab the actual user data for the display name
   $current_user = wp_get_current_user();
@@ -68,8 +79,6 @@ function remove_howdy_admin_bar($wp_admin_bar)
     ]);
   }
 }
-add_action('admin_bar_menu', __NAMESPACE__ . '\\remove_howdy_admin_bar', 9999);
-
 
 /**
  * This funciton add the 'Post ID' column to the front of the post and page tables in the Admin section of WordPress
@@ -78,6 +87,7 @@ add_action('admin_bar_menu', __NAMESPACE__ . '\\remove_howdy_admin_bar', 9999);
  */
 function add_post_id_column($columns)
 {
+
   $columns_before = array_slice($columns, 0, 1);
   $columns_after = array_slice($columns, 1);
 
@@ -89,8 +99,6 @@ function add_post_id_column($columns)
 
   return $columns;
 }
-add_filter('manage_post_posts_columns', __NAMESPACE__ . '\\add_post_id_column');
-add_filter('manage_pages_columns', __NAMESPACE__ . '\\add_post_id_column');
 
 /**
  * This funciton places the post id number in the proper column
@@ -105,8 +113,6 @@ function add_post_ids($column, $post_id)
     echo $post_id;
   }
 }
-add_action('manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
-add_action('manage_pages_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
 
 /**
 * Injecting a bit of CSS code to shrink the ID column width
@@ -152,7 +158,8 @@ function register_tweaks_settings() {
 
     // Add the individual checkbox fields
     add_settings_field( 'remove_howdy', 'Remove "Howdy"', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'remove_howdy' ] );
-    add_settings_field( 'show_post_ids', 'Show Post IDs', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'show_post_ids' ] );
+    add_settings_field( 'show_post_ids_posts', 'Show Post IDs', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'show_post_ids_posts' ] );
+    add_settings_field( 'show_post_ids_pages', 'Show Page IDs', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'show_post_ids_pages' ] );
     add_settings_field( 'silence_health', 'Silence Health Warnings', __NAMESPACE__ . '\\render_checkbox', 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'silence_health' ] );
 }
 add_action( 'admin_init', __NAMESPACE__ . '\\register_tweaks_settings' );
