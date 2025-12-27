@@ -80,23 +80,22 @@ add_action('admin_bar_menu', __NAMESPACE__ . '\\remove_howdy_admin_bar', 9999);
  * This funciton add the 'Post ID' column to the front of the post table in the Admin section of WordPress
  *
  * @param Array $columns
- * @return void
  */
 function add_post_id_column($columns)
 {
-
   $columns_before = array_slice($columns, 0, 1);
   $columns_after = array_slice($columns, 1);
 
   $columns = $columns_before +
     array(
-      POST_ID_KEY => __('Post ID'),
+      POST_ID_KEY => __('ID'),
     ) +
     $columns_after;
 
   return $columns;
 }
 add_filter('manage_post_posts_columns', __NAMESPACE__ . '\\add_post_id_column');
+add_filter('manage_pages_columns', __NAMESPACE__ . '\\add_post_id_column');
 
 /**
  * This funciton places the post id number in the proper column
@@ -112,6 +111,7 @@ function add_post_ids($column, $post_id)
   }
 }
 add_action('manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
+add_action('manage_pages_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2);
 
 /**
  * Removes the 'Background updates are not working as expected' check from Site Health.
