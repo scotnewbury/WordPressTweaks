@@ -60,7 +60,7 @@ function remove_howdy_admin_bar($wp_admin_bar)
   }
 
   // Grab the display name
-  $display_name = $current_user->display_name;
+  $display_name = esc_html ( $current_user->display_name );
 
   // Update the node with only the display name
   // Grab the node first
@@ -112,7 +112,7 @@ function add_post_id_column($columns)
 function add_post_ids($column, $post_id)
 {
   if (POST_ID_KEY == $column) {
-    echo $post_id;
+    echo '<code>' . (int) $post_id . '</code>';
   }
 }
 
