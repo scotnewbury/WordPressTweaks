@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
-  $options = get_option( 'sn_tweaks_options' );
+$options = get_option( 'sn_tweaks_options' );
 
 // Toggle for removing 'Howdy'
 if ( ! empty( $options['remove_howdy']) ) {
@@ -32,12 +32,14 @@ if ( ! empty( $options['remove_howdy']) ) {
 if ( ! empty( $options['show_post_ids_posts'] ) ) {
     add_filter( 'manage_post_posts_columns', __NAMESPACE__ . '\\add_post_id_column' );
     add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2 );
+    add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
 }
 
 // Toggle IDs for pages table
 if ( ! empty( $options['show_post_ids_pages'] ) ) {
     add_filter( 'manage_pages_columns', __NAMESPACE__ . '\\add_post_id_column' );
     add_action( 'manage_pages_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2 );
+    add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
 }
 
 /**
@@ -131,7 +133,7 @@ function style_post_id_column() {
       }
   </style>';
 }
-add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
+
 
 /**
  * Removes the 'Background updates are not working as expected' check from Site Health.
