@@ -43,6 +43,58 @@ if ( ! empty( $options['show_post_ids_pages'] ) ) {
 }
 
 /**
+ * Alphabetize the WordPress Admin Menu.
+ */
+/**
+ * Alphabetize the WordPress Admin Menu.
+ */
+/**
+ * Alphabetize the WordPress Admin Menu.
+ * * We use a high priority (999) to ensure this runs AFTER other 
+ * plugins have registered their menu items.
+ */
+function alphabetize_admin_menu( $menu_order ) {
+    global $menu;
+
+    $top_items = array(); 
+    $sort_items = array();
+
+    foreach ( $menu as $key => $item ) {
+        // Keep Dashboard (index 2) and empty items (separators) at the top
+        // Some items (like Jetpack) might be at index 2, so we check the slug
+        if ( empty( $item[0] ) || $item[2] === 'index.php' ) {
+            $top_items[$key] = $item;
+        } else {
+            // Strip HTML tags (like update counts) for a clean alphabetical sort
+            $label = wp_strip_all_tags( $item[0] );
+            $sort_items[$key] = $label;
+        }
+    }
+
+    // Sort labels alphabetically while keeping the original $menu keys
+    asort( $sort_items );
+
+    $new_menu = array();
+    
+    // 1. Add Dashboard/Separators back first
+    foreach ( $top_items as $key => $item ) {
+        $new_menu[] = $item;
+    }
+
+    // 2. Add the alphabetized items
+    foreach ( $sort_items as $key => $label ) {
+        $new_menu[] = $menu[$key];
+    }
+
+    $menu = $new_menu;
+    return $menu_order;
+}
+
+// Enable custom ordering and hook with high priority
+add_filter( 'custom_menu_order', '__return_true' );
+add_filter( 'menu_order', __NAMESPACE__ . '\\alphabetize_admin_menu', 999 );
+
+/**
  * Overwrites the 'Howdy' greeting by setting the account title 
  * to the user's display name directly.
  *
