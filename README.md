@@ -24,6 +24,3 @@ Key features:
 * Added "Howdy" removal logic.
 * Added Site Health silence toggle.
 * Implemented Namespacing and PSR-4 style organization.
-
-### 1.0.0
-Initial version release.
