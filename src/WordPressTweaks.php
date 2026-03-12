@@ -42,6 +42,13 @@ class WordPressTweaks {
           add_action( 'manage_pages_custom_column', [$this, 'add_post_ids'], 10, 2 );
           add_action( 'admin_head', [$this, 'style_post_id_column'] );
         }
+
+        // Toggle alphabetical menu sorting
+        if ( ! empty( $this->options['sort_menu'] ) ) {
+            add_filter( 'custom_menu_order', '__return_true' );
+            add_filter( 'menu_order', [$this, 'sort_admin_menu_alphabetically'] );
+        }
+
         // Toggle health check
         if ( ! empty ( $this->options['silence_health'] ) ) {
           add_filter( 'site_status_tests', [$this, 'remove_background_update_check'] );
@@ -128,6 +135,44 @@ class WordPressTweaks {
               text-align: center;
           }
       </style>';
+    }
+
+    /**
+     * Sorts the main WordPress admin menu alphabetically, keeping Dashboard at the top.
+     */
+    public function sort_admin_menu_alphabetically( $menu_order ) 
+    {
+        if ( ! $menu_order ) {
+            return true;
+        }
+
+        // Bring in the global WordPress menu array
+        global $menu;
+        $sorted_menu = $menu;
+
+        // Sort the menu array alphabetically by the menu title (which is index 0)
+        usort( $sorted_menu, function ( $a, $b ) {
+            // Strip HTML tags in case plugins inject span tags into their titles (e.g., notification bubbles)
+            $titleA = wp_strip_all_tags( $a[0] );
+            $titleB = wp_strip_all_tags( $b[0] );
+            
+            return strcasecmp( $titleA, $titleB );
+        });
+
+        // Rebuild the order array using the menu slugs (index 2)
+        $new_menu_order = [];
+        foreach ( $sorted_menu as $item ) {
+            $new_menu_order[] = $item[2]; 
+        }
+
+        // Make sure "Dashboard" stays at the very top where it belongs
+        $dashboard_key = array_search( 'index.php', $new_menu_order, true );
+        if ( $dashboard_key !== false ) {
+            unset( $new_menu_order[$dashboard_key] );
+            array_unshift( $new_menu_order, 'index.php' );
+        }
+
+        return $new_menu_order;
     }
 
     /**

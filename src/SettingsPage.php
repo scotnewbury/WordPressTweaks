@@ -34,6 +34,7 @@ class SettingsPage {
     add_settings_field( 'remove_howdy', 'Remove "Howdy"', [$this, 'render_checkbox'], 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'remove_howdy' ] );
     add_settings_field( 'show_post_ids_posts', 'Show Post IDs', [$this, 'render_checkbox'], 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'show_post_ids_posts' ] );
     add_settings_field( 'show_post_ids_pages', 'Show Page IDs', [$this, 'render_checkbox'], 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'show_post_ids_pages' ] );
+    add_settings_field( 'sort_menu', 'Sort Menu Alphabetically', [$this, 'render_checkbox'], 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'sort_menu' ] );
     add_settings_field( 'silence_health', 'Silence Health Warnings', [$this, 'render_checkbox'], 'sn-tweaks-admin', 'sn_tweaks_section_admin', [ 'label_for' => 'silence_health' ] );
     }
 
