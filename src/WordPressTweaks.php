@@ -137,10 +137,9 @@ class WordPressTweaks {
       </style>';
     }
 
-    /**
-     * Sorts the main WordPress admin menu alphabetically, keeping Dashboard at the top.
-     */
-    public function sort_admin_menu_alphabetically( $menu_order ) 
+    
+    // Sorts the main WordPress admin menu alphabetically, keeping Dashboard at the top.
+        public function sort_admin_menu_alphabetically( $menu_order ) 
     {
         if ( ! $menu_order ) {
             return true;
