@@ -47,16 +47,19 @@ class WordPressTweaks {
         if ( ! empty( $this->options['show_post_ids_posts'] ) ) {
           add_filter( 'manage_post_posts_columns', [$this, 'add_post_id_column'] );
           add_action( 'manage_posts_custom_column', [$this, 'add_post_ids'], 10, 2 );
-          add_action( 'admin_head', [$this, 'style_post_id_column']);
+          add_action( 'admin_head', [$this, 'style_post_id_column'] );
         }
 
         // Toggle IDs for pages table
         if ( ! empty( $this->options['show_post_ids_pages'] ) ) {
           add_filter( 'manage_pages_columns', [$this, 'add_post_id_column'] );
           add_action( 'manage_pages_custom_column', [$this, 'add_post_ids'], 10, 2 );
-          add_action( 'admin_head', [$this, 'style_post_id_column']);
+          add_action( 'admin_head', [$this, 'style_post_id_column'] );
         }
-
+        // Toggle health check
+        if ( ! empty ( $this->options['silence_health'] ) ) {
+          add_filter( 'site_status_tests', [$this, 'remove_background_update_check'] );
+        }
     }
 
   
@@ -140,22 +143,25 @@ class WordPressTweaks {
           }
       </style>';
     }
+
+    /**
+     * Removes the 'Background updates are not working as expected' check from Site Health.
+     * Since WP_AUTO_UPDATE_CORE is intentionally false, hide the warning to keep the dashboard clean.
+     */
+    public function remove_background_update_check( $tests ) {
+        // Background updates are part of the asynchronous tests in the Site Health suite.
+        if ( isset( $tests['async']['background_updates'] ) ) {
+            unset( $tests['async']['background_updates'] );
+        }
+        return $tests;
+    }    
+    
 }
 
 new WordPressTweaks();
 
-/**
- * Removes the 'Background updates are not working as expected' check from Site Health.
- * Since WP_AUTO_UPDATE_CORE is intentionally false, hide the warning to keep the dashboard clean.
- */
-function remove_background_update_check( $tests ) {
-    // Background updates are part of the asynchronous tests in the Site Health suite.
-    if ( isset( $tests['async']['background_updates'] ) ) {
-        unset( $tests['async']['background_updates'] );
-    }
-    return $tests;
-}
-add_filter( 'site_status_tests', __NAMESPACE__ . '\\remove_background_update_check' );
+
+
 
 /**
  * Create Settings Page and its Fields - register it
