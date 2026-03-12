@@ -12,7 +12,6 @@
  * Scope the namespance and set up some variables to prevent clashes
  */
 namespace ScotNewbury\WordPressTweaks;
-const POST_ID_KEY = 'sn_wp_tweaks_post_id';
 
 /**
  *  Stop execution of the plugin if it's call directly.
@@ -144,20 +143,6 @@ class WordPressTweaks {
 }
 
 new WordPressTweaks();
-
-$options = get_option( 'sn_tweaks_options' );
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * Removes the 'Background updates are not working as expected' check from Site Health.
