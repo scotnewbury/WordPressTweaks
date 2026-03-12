@@ -39,17 +39,25 @@ class WordPressTweaks {
     {
         // We access the options we stored in the constructor using $this->options
         if ( ! empty( $this->options['remove_howdy'] ) ) {
-            // IMPORTANT: In OOP, WordPress hooks need an array instead of a string.
-            // [$this, 'method_name'] tells WP: "Look in THIS class for the method."
-            add_action('admin_bar_menu', [$this, 'remove_howdy_admin_bar'], 9999);
+          // IMPORTANT: In OOP, WordPress hooks need an array instead of a string.
+          // [$this, 'method_name'] tells WP: "Look in THIS class for the method."
+          add_action('admin_bar_menu', [$this, 'remove_howdy_admin_bar'], 9999);
         }
 
         // Toggle IDs on post table
         if ( ! empty( $this->options['show_post_ids_posts'] ) ) {
-        add_filter( 'manage_post_posts_columns', [$this, 'add_post_id_column'] );
-        add_action( 'manage_posts_custom_column', [$this, 'add_post_ids'], 10, 2 );
-        add_action('admin_head', [$this, 'style_post_id_column']);
+          add_filter( 'manage_post_posts_columns', [$this, 'add_post_id_column'] );
+          add_action( 'manage_posts_custom_column', [$this, 'add_post_ids'], 10, 2 );
+          add_action( 'admin_head', [$this, 'style_post_id_column']);
         }
+
+        // Toggle IDs for pages table
+        if ( ! empty( $this->options['show_post_ids_pages'] ) ) {
+          add_filter( 'manage_pages_columns', [$this, 'add_post_id_column'] );
+          add_action( 'manage_pages_custom_column', [$this, 'add_post_ids'], 10, 2 );
+          add_action( 'admin_head', [$this, 'style_post_id_column']);
+        }
+
     }
 
   
@@ -142,12 +150,6 @@ $options = get_option( 'sn_tweaks_options' );
 
 
 
-// Toggle IDs for pages table
-if ( ! empty( $options['show_post_ids_pages'] ) ) {
-    add_filter( 'manage_pages_columns', __NAMESPACE__ . '\\add_post_id_column' );
-    add_action( 'manage_pages_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2 );
-    add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
-}
 
 
 
