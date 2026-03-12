@@ -43,6 +43,13 @@ class WordPressTweaks {
             // [$this, 'method_name'] tells WP: "Look in THIS class for the method."
             add_action('admin_bar_menu', [$this, 'remove_howdy_admin_bar'], 9999);
         }
+
+        // Toggle IDs on post table
+        if ( ! empty( $this->options['show_post_ids_posts'] ) ) {
+        add_filter( 'manage_post_posts_columns', [$this, 'add_post_id_column'] );
+        add_action( 'manage_posts_custom_column', [$this, 'add_post_ids'], 10, 2 );
+        add_action('admin_head', [$this, 'style_post_id_column']);
+        }
     }
 
   
@@ -80,18 +87,60 @@ class WordPressTweaks {
         ]);
       }
     }
+  
+    /**
+    * This funciton add the 'Post ID' column to the front of the post and page tables in the Admin section of WordPress
+    */
+    public function add_post_id_column($columns)
+    {
+
+      $columns_before = array_slice($columns, 0, 1);
+      $columns_after = array_slice($columns, 1);
+
+      $columns = $columns_before +
+        array(
+          self::POST_ID_KEY => __('ID'),
+        ) +
+        $columns_after;
+
+      return $columns;
+    }
+
+    /**
+    * This funciton places the post id number in the proper column
+    */
+    public function add_post_ids($column, $post_id)
+    {
+      if (self::POST_ID_KEY == $column) {
+        echo '<code>' . (int) $post_id . '</code>';
+      }
+    }
+
+    /**
+    * Injecting a bit of CSS code to shrink the ID column width
+    */
+    public function style_post_id_column() {
+      $screen = get_current_screen();
+
+      // Only load if we are on a list table (e.g., edit-post or edit-page)
+      if ( ! $screen || 'edit' !== $screen->base ) {
+          return;
+      }  
+      echo '<style>
+          .fixed .column-' . self::POST_ID_KEY . ' { 
+              width: 60px; 
+              text-align: center;
+          }
+      </style>';
+    }
 }
 
 new WordPressTweaks();
 
 $options = get_option( 'sn_tweaks_options' );
 
-// Toggle IDs on post table
-if ( ! empty( $options['show_post_ids_posts'] ) ) {
-    add_filter( 'manage_post_posts_columns', __NAMESPACE__ . '\\add_post_id_column' );
-    add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\\add_post_ids', 10, 2 );
-    add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
-}
+
+
 
 // Toggle IDs for pages table
 if ( ! empty( $options['show_post_ids_pages'] ) ) {
@@ -101,57 +150,11 @@ if ( ! empty( $options['show_post_ids_pages'] ) ) {
 }
 
 
-/**
- * This funciton add the 'Post ID' column to the front of the post and page tables in the Admin section of WordPress
- *
- * @param Array $columns
- */
-function add_post_id_column($columns)
-{
 
-  $columns_before = array_slice($columns, 0, 1);
-  $columns_after = array_slice($columns, 1);
 
-  $columns = $columns_before +
-    array(
-      POST_ID_KEY => __('ID'),
-    ) +
-    $columns_after;
 
-  return $columns;
-}
 
-/**
- * This funciton places the post id number in the proper column
- *
- * @param String $column
- * @param String $post_id
- * @return void
- */
-function add_post_ids($column, $post_id)
-{
-  if (POST_ID_KEY == $column) {
-    echo '<code>' . (int) $post_id . '</code>';
-  }
-}
 
-/**
-* Injecting a bit of CSS code to shrink the ID column width
-*/
-function style_post_id_column() {
-  $screen = get_current_screen();
-
-  // Only load if we are on a list table (e.g., edit-post or edit-page)
-  if ( ! $screen || 'edit' !== $screen->base ) {
-      return;
-  }  
-  echo '<style>
-      .fixed .column-' . POST_ID_KEY . ' { 
-          width: 60px; 
-          text-align: center;
-      }
-  </style>';
-}
 
 
 /**
