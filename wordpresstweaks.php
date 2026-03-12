@@ -21,12 +21,70 @@ if (!defined('ABSPATH')) {
   exit;
 }
 
-$options = get_option( 'sn_tweaks_options' );
+class WordPressTweaks {
 
-// Toggle for removing 'Howdy'
-if ( ! empty( $options['remove_howdy']) ) {
-  add_action('admin_bar_menu', __NAMESPACE__ . '\\remove_howdy_admin_bar', 9999);
+  private $options;
+  const POST_ID_KEY = 'sn_wp_tweaks_post_id';
+
+  public function __construct() 
+      {
+          // Pull the database options and store them
+          $this->options = get_option( 'sn_tweaks_options' );
+
+          // Set up WordPress hooks
+          $this->init_hooks();
+      }
+
+  private function init_hooks() 
+    {
+        // We access the options we stored in the constructor using $this->options
+        if ( ! empty( $this->options['remove_howdy'] ) ) {
+            // IMPORTANT: In OOP, WordPress hooks need an array instead of a string.
+            // [$this, 'method_name'] tells WP: "Look in THIS class for the method."
+            add_action('admin_bar_menu', [$this, 'remove_howdy_admin_bar'], 9999);
+        }
+    }
+
+  
+  // Overwrites the 'Howdy' greeting by setting the account title 
+  // to the user's display name directly.
+  public function remove_howdy_admin_bar( $wp_admin_bar ) 
+    {
+      // Grab the actual user data for the display name
+      $current_user = wp_get_current_user();
+
+      // Safety checik: do we have a valid user
+      if ( 0 === $current_user->ID ) {
+        return;
+      }
+
+      // Grab the display name
+      $display_name = esc_html ( $current_user->display_name );
+
+      // Update the node with only the display name
+      // Grab the node first
+      $account_node = $wp_admin_bar->get_node('my-account');
+      if ( $account_node ) {
+        $wp_admin_bar->add_node([
+          'id'    => 'my-account',
+          'title' => $display_name,
+        ]);
+      }
+
+      // Target and replace the the user-info node
+      $info_node = $wp_admin_bar->get_node('user-info');
+      if ( $info_node ) {
+        $wp_admin_bar->add_node([
+          'id'    => 'user-info',
+          'title' => $display_name,
+        ]);
+      }
+    }
 }
+
+new WordPressTweaks();
+
+$options = get_option( 'sn_tweaks_options' );
 
 // Toggle IDs on post table
 if ( ! empty( $options['show_post_ids_posts'] ) ) {
@@ -42,45 +100,6 @@ if ( ! empty( $options['show_post_ids_pages'] ) ) {
     add_action('admin_head', __NAMESPACE__ . '\\style_post_id_column');
 }
 
-/**
- * Overwrites the 'Howdy' greeting by setting the account title 
- * to the user's display name directly.
- *
- * @param WP_Admin_Bar $wp_admin_bar The Admin Bar object.
- */
-function remove_howdy_admin_bar($wp_admin_bar)
-{
-
-  // Grab the actual user data for the display name
-  $current_user = wp_get_current_user();
-
-  // Safety checik: do we have a valid user
-  if ( 0 === $current_user->ID ) {
-    return;
-  }
-
-  // Grab the display name
-  $display_name = esc_html ( $current_user->display_name );
-
-  // Update the node with only the display name
-  // Grab the node first
-  $account_node = $wp_admin_bar->get_node('my-account');
-  if ( $account_node ) {
-    $wp_admin_bar->add_node([
-      'id'    => 'my-account',
-      'title' => $display_name,
-    ]);
-  }
-
-  // Target and replace the the user-info node
-  $info_node = $wp_admin_bar->get_node('user-info');
-  if ( $info_node ) {
-    $wp_admin_bar->add_node([
-      'id'    => 'user-info',
-      'title' => $display_name,
-    ]);
-  }
-}
 
 /**
  * This funciton add the 'Post ID' column to the front of the post and page tables in the Admin section of WordPress
